@@ -11,59 +11,119 @@ export function TennisBallButton() {
     setIsZooming(true);
     setTimeout(() => {
       router.push("/playbook");
-    }, 700);
+    }, 800);
   };
 
   return (
     <button
       onClick={handleClick}
       aria-label="시작하기"
-      className={`group relative cursor-pointer transition-transform duration-700 ease-in-out ${
-        isZooming ? "scale-[20] opacity-80" : "hover:scale-110 active:scale-95"
+      className={`group relative cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.28,0.84,0.42,1)] ${
+        isZooming
+          ? "scale-[25] opacity-90"
+          : "animate-[ballBounce_2s_cubic-bezier(0.28,0.84,0.42,1)_infinite] hover:scale-110 active:scale-95"
       }`}
     >
-      {/* Tennis ball SVG */}
       <svg
-        width="120"
-        height="120"
-        viewBox="0 0 120 120"
+        width="140"
+        height="140"
+        viewBox="0 0 140 140"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
-        className="drop-shadow-lg"
+        role="img"
+        aria-labelledby="ball-title"
+        className="drop-shadow-[0_8px_16px_rgba(0,0,0,0.3)]"
       >
-        <circle cx="60" cy="60" r="56" fill="#c8e620" />
-        <circle cx="60" cy="60" r="56" fill="url(#ballGradient)" />
-        <circle cx="60" cy="60" r="56" fill="url(#feltTexture)" opacity="0.3" />
-        {/* Seam curve - left */}
-        <path
-          d="M 38 12 C 20 35, 20 85, 38 108"
-          stroke="white"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-        />
-        {/* Seam curve - right */}
-        <path
-          d="M 82 12 C 100 35, 100 85, 82 108"
-          stroke="white"
-          strokeWidth="3"
-          fill="none"
-          strokeLinecap="round"
-        />
+        <title id="ball-title">테니스 공 - 클릭하여 시작</title>
         <defs>
-          <radialGradient id="ballGradient" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="#e8ff5a" stopOpacity="0.6" />
-            <stop offset="100%" stopColor="#9ab800" stopOpacity="0.4" />
+          {/* Main ball gradient - 3D depth */}
+          <radialGradient id="ballBase" cx="38%" cy="32%" r="65%" fx="35%" fy="30%">
+            <stop offset="0%" stopColor="#e4ff6b" />
+            <stop offset="35%" stopColor="#c9e632" />
+            <stop offset="70%" stopColor="#a8c41a" />
+            <stop offset="100%" stopColor="#7a9900" />
           </radialGradient>
-          <radialGradient id="feltTexture" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="white" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+          {/* Highlight on top-left */}
+          <radialGradient id="ballHighlight" cx="30%" cy="25%" r="30%">
+            <stop offset="0%" stopColor="white" stopOpacity="0.6" />
+            <stop offset="100%" stopColor="white" stopOpacity="0" />
           </radialGradient>
+          {/* Bottom shadow gradient */}
+          <radialGradient id="ballShadow" cx="60%" cy="75%" r="40%">
+            <stop offset="0%" stopColor="#4a6600" stopOpacity="0.4" />
+            <stop offset="100%" stopColor="#4a6600" stopOpacity="0" />
+          </radialGradient>
+          {/* Felt texture using noise-like pattern */}
+          <filter id="feltNoise" x="0%" y="0%" width="100%" height="100%">
+            <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="4" result="noise" />
+            <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
+            <feBlend in="SourceGraphic" in2="grayNoise" mode="soft-light" result="felt" />
+          </filter>
+          {/* Outer glow for interactivity hint */}
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="blur" />
+            <feMerge>
+              <feMergeNode in="blur" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
         </defs>
+
+        {/* Ball body with felt texture */}
+        <circle cx="70" cy="70" r="62" fill="url(#ballBase)" filter="url(#feltNoise)" />
+        {/* 3D shading layer */}
+        <circle cx="70" cy="70" r="62" fill="url(#ballShadow)" />
+        {/* Top highlight */}
+        <circle cx="70" cy="70" r="62" fill="url(#ballHighlight)" />
+
+        {/* Seam curves - realistic tennis ball pattern */}
+        <path
+          d="M 40 14 C 22 30, 18 55, 22 70 C 26 85, 32 105, 42 126"
+          stroke="white"
+          strokeWidth="2.8"
+          fill="none"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+        <path
+          d="M 100 14 C 118 30, 122 55, 118 70 C 114 85, 108 105, 98 126"
+          stroke="white"
+          strokeWidth="2.8"
+          fill="none"
+          strokeLinecap="round"
+          opacity="0.9"
+        />
+        {/* Seam detail - subtle inner lines */}
+        <path
+          d="M 41 16 C 24 31, 20 55, 24 70 C 28 85, 33 104, 43 124"
+          stroke="rgba(150,180,50,0.5)"
+          strokeWidth="1.2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        <path
+          d="M 99 16 C 116 31, 120 55, 116 70 C 112 85, 107 104, 97 124"
+          stroke="rgba(150,180,50,0.5)"
+          strokeWidth="1.2"
+          fill="none"
+          strokeLinecap="round"
+        />
+        {/* Rim light for depth */}
+        <circle
+          cx="70"
+          cy="70"
+          r="61"
+          fill="none"
+          stroke="rgba(255,255,255,0.15)"
+          strokeWidth="2"
+        />
       </svg>
+
+      {/* Ground shadow with bounce sync */}
       {!isZooming && (
-        <span className="absolute -bottom-2 left-1/2 h-4 w-16 -translate-x-1/2 rounded-full bg-black/10 blur-sm group-hover:w-14" />
+        <span className="absolute -bottom-4 left-1/2 h-3 w-20 -translate-x-1/2 animate-[shadowPulse_2s_cubic-bezier(0.28,0.84,0.42,1)_infinite] rounded-full bg-black/20 blur-md" />
       )}
     </button>
   );
 }
+
