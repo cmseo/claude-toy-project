@@ -11,26 +11,34 @@ function sentencesFromNotes(notes: string): string[] {
     .filter((s) => s.length > 0);
 }
 
+function shuffle<T>(arr: T[]): T[] {
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j]!, result[i]!];
+  }
+  return result;
+}
+
 export function generatePlaybook(entries: DiaryEntry[]): PlaybookItem[] {
   if (entries.length === 0) return [];
 
-  const sorted = [...entries].sort((a, b) => {
-    if (a.date !== b.date) return a.date < b.date ? 1 : -1;
-    return a.createdAt < b.createdAt ? 1 : -1;
-  });
-
-  const items: PlaybookItem[] = [];
   const seen = new Set<string>();
+  const pool: Array<{ entryId: string; text: string }> = [];
 
-  for (const entry of sorted) {
+  for (const entry of entries) {
     for (const sentence of sentencesFromNotes(entry.notes)) {
       const key = sentence.toLowerCase();
       if (seen.has(key)) continue;
       seen.add(key);
-      items.push({ id: `${entry.id}:${items.length}`, text: sentence });
-      if (items.length >= MAX_ITEMS) return items;
+      pool.push({ entryId: entry.id, text: sentence });
     }
   }
 
-  return items;
+  return shuffle(pool)
+    .slice(0, MAX_ITEMS)
+    .map((item, index) => ({
+      id: `${item.entryId}:${index}`,
+      text: item.text,
+    }));
 }
