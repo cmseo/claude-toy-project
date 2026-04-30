@@ -99,13 +99,14 @@ export function TimeSummary({ entries, now = new Date() }: TimeSummaryProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        {period === "all" && allFirst ? (
-          <p className="text-lg font-semibold">
-            {formatFirstDate(allFirst)}부터 {formatDuration(total)}
-          </p>
-        ) : (
-          <p className="text-lg font-semibold">{formatDuration(total)}</p>
-        )}
+        <div className="flex flex-col gap-0.5">
+          {period === "all" && allFirst && (
+            <p className="text-xs text-muted-foreground">
+              {formatFirstDate(allFirst)}부터
+            </p>
+          )}
+          <p className="text-2xl font-semibold">{formatDuration(total)}</p>
+        </div>
       </CardContent>
     </Card>
   );

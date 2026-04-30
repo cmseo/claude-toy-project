@@ -64,7 +64,8 @@ describe("TimeSummary", () => {
     ];
     render(<TimeSummary entries={entries} now={now} />);
     await user.click(screen.getByRole("radio", { name: "전체" }));
-    expect(screen.getByText("24년 05월 15일부터 1시간 30분")).toBeInTheDocument();
+    expect(screen.getByText("24년 05월 15일부터")).toBeInTheDocument();
+    expect(screen.getByText("1시간 30분")).toBeInTheDocument();
   });
 
   it("전체 탭에서 기록이 없으면 0분만 표시된다", async () => {
