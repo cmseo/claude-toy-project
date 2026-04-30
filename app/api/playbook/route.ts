@@ -65,7 +65,8 @@ export async function POST(request: Request) {
       items,
       updatedAt: new Date().toISOString(),
     });
-  } catch {
+  } catch (error) {
+    console.error("[playbook API]", error);
     return Response.json(
       { error: "플레이북 생성 중 오류가 발생했습니다." },
       { status: 500 }
