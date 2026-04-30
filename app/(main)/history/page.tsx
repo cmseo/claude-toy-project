@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/empty";
 import { DeleteDialog } from "@/components/diary/DeleteDialog";
 import { RecordCard } from "@/components/diary/RecordCard";
+import { TimeSummary } from "@/components/diary/TimeSummary";
 import { useDiary } from "@/hooks/useDiary";
 import type { DiaryEntry } from "@/types/diary";
 
@@ -34,6 +35,7 @@ export default function HistoryPage() {
   return (
     <div className="flex flex-col gap-4 p-4">
       <h1 className="text-2xl font-semibold">히스토리</h1>
+      {hydrated && <TimeSummary entries={entries} />}
       {hydrated && sorted.length === 0 && (
         <Empty>
           <EmptyHeader>
