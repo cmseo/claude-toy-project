@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <!-- Handle -->
+  <rect x="2" y="22" width="10" height="4" rx="2" fill="#6B3A1F" stroke="#4a2810" stroke-width="0.8" transform="rotate(-45 7 24)"/>
+  <!-- Racket head -->
+  <ellipse cx="20" cy="12" rx="9" ry="11" fill="none" stroke="#222" stroke-width="2" transform="rotate(-10 20 12)"/>
+  <!-- Strings horizontal -->
+  <line x1="13" y1="9" x2="27" y2="9" stroke="#aaa" stroke-width="0.7" transform="rotate(-10 20 12)"/>
+  <line x1="12" y1="12" x2="28" y2="12" stroke="#aaa" stroke-width="0.7" transform="rotate(-10 20 12)"/>
+  <line x1="13" y1="15" x2="27" y2="15" stroke="#aaa" stroke-width="0.7" transform="rotate(-10 20 12)"/>
+  <!-- Strings vertical -->
+  <line x1="17" y1="2" x2="17" y2="22" stroke="#aaa" stroke-width="0.7" transform="rotate(-10 20 12)"/>
+  <line x1="20" y1="1" x2="20" y2="23" stroke="#aaa" stroke-width="0.7" transform="rotate(-10 20 12)"/>
+  <line x1="23" y1="2" x2="23" y2="22" stroke="#aaa" stroke-width="0.7" transform="rotate(-10 20 12)"/>
+</svg>
