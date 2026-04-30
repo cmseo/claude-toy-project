@@ -69,3 +69,46 @@ describe("RecordForm — 레슨 기록", () => {
     expect((screen.getByLabelText("날짜") as HTMLInputElement).value).toBe(`${yyyy}-${mm}-${dd}`);
   });
 });
+
+describe("RecordForm — 경기 조건부 필드", () => {
+  it("기본 레슨 모드에서는 스코어/결과 필드가 보이지 않는다", () => {
+    render(<RecordForm onSubmit={vi.fn()} />);
+    expect(screen.queryByLabelText("스코어")).not.toBeInTheDocument();
+    expect(screen.queryByRole("radio", { name: "승" })).not.toBeInTheDocument();
+  });
+
+  it("경기로 전환하면 스코어/결과 필드가 나타나고, 다시 레슨으로 바꾸면 사라진다", async () => {
+    const user = userEvent.setup();
+    render(<RecordForm onSubmit={vi.fn()} />);
+    await user.click(screen.getByRole("radio", { name: "경기" }));
+    expect(screen.getByLabelText("스코어")).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "승" })).toBeInTheDocument();
+    expect(screen.getByRole("radio", { name: "패" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("radio", { name: "레슨" }));
+    expect(screen.queryByLabelText("스코어")).not.toBeInTheDocument();
+  });
+
+  it("경기 모드 저장 시 score와 result가 onSubmit 인자에 포함된다", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<RecordForm onSubmit={onSubmit} />);
+
+    await user.click(screen.getByRole("radio", { name: "경기" }));
+    fireEvent.change(screen.getByLabelText("날짜"), { target: { value: "2026-04-29" } });
+    fireEvent.change(screen.getByLabelText("소요 시간(분)"), { target: { value: "75" } });
+    await user.type(screen.getByLabelText("스코어"), "6-4 6-3");
+    await user.click(screen.getByRole("radio", { name: "승" }));
+    await user.click(screen.getByRole("button", { name: "저장" }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: "match",
+        date: "2026-04-29",
+        duration: 75,
+        score: "6-4 6-3",
+        result: "win",
+      }),
+    );
+  });
+});
