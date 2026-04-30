@@ -1,4 +1,5 @@
 import { TennisBallButton } from "@/components/landing/TennisBallButton";
+import { AppPreview } from "@/components/landing/AppPreview";
 
 export default function LandingPage() {
   return (
@@ -95,6 +96,11 @@ export default function LandingPage() {
           레슨과 경기에서 느낀 점을 한 줄씩 적으면, 다음 경기 전에 살펴볼
           체크리스트가 자동으로 채워져요.
         </p>
+      </div>
+
+      {/* App preview cards */}
+      <div className="z-10">
+        <AppPreview />
       </div>
 
       {/* Tennis ball CTA */}
