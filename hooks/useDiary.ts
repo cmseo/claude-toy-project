@@ -79,8 +79,14 @@ export function useDiary(): UseDiaryResult {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "플레이북 생성에 실패했습니다");
+        let errorMsg = "플레이북 생성에 실패했습니다";
+        try {
+          const data = await response.json();
+          errorMsg = data.error || errorMsg;
+        } catch {
+          /* non-JSON response */
+        }
+        throw new Error(errorMsg);
       }
 
       const newPlaybook: Playbook = await response.json();

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { FabBubble } from "@/components/diary/FabBubble";
 import { PlaybookList } from "@/components/diary/PlaybookList";
@@ -17,16 +17,20 @@ export default function PlaybookPage() {
     regeneratePlaybook,
   } = useDiary();
   const showBubble = hydrated && entries.length === 0;
+  const hasTriggered = useRef(false);
 
   useEffect(() => {
-    if (hydrated && isStale && entries.length > 0 && !isGenerating) {
-      regeneratePlaybook();
+    if (hydrated && isStale && entries.length > 0 && !hasTriggered.current) {
+      hasTriggered.current = true;
+      regeneratePlaybook().finally(() => {
+        hasTriggered.current = false;
+      });
     }
-  }, [hydrated, isStale, entries.length, isGenerating, regeneratePlaybook]);
+  }, [hydrated, isStale, entries.length, regeneratePlaybook]);
 
   useEffect(() => {
     if (generationError) {
-      toast.error("플레이북 생성에 실패했습니다");
+      toast.error("플레이북 생성에 실패했습니다", { id: "playbook-error" });
     }
   }, [generationError]);
 
