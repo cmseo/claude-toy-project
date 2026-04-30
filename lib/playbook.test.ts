@@ -1,48 +1,39 @@
 import { describe, expect, it } from "vitest";
-import { generatePlaybook } from "./playbook";
+import { buildPrompt } from "./playbook";
 import type { DiaryEntry } from "@/types/diary";
 
-const e = (id: string, notes: string): DiaryEntry => ({
+const e = (id: string, notes: string, date = "2026-04-30"): DiaryEntry => ({
   id,
   type: "lesson",
-  date: "2026-04-30",
+  date,
   duration: 60,
   notes,
-  createdAt: "2026-04-30T10:00:00.000Z",
+  createdAt: `${date}T10:00:00.000Z`,
 });
 
-describe("generatePlaybook", () => {
-  it("빈 entries → 빈 배열", () => {
-    expect(generatePlaybook([])).toEqual([]);
+describe("buildPrompt", () => {
+  it("모든 entry의 notes를 포함한 프롬프트를 생성한다", () => {
+    const entries = [
+      e("a", "백핸드 타이밍을 늦춰야 한다"),
+      e("b", "서브 토스를 높이 올리자"),
+    ];
+    const prompt = buildPrompt(entries);
+    expect(prompt).toContain("백핸드 타이밍을 늦춰야 한다");
+    expect(prompt).toContain("서브 토스를 높이 올리자");
   });
 
-  it("최대 5개 항목을 반환한다", () => {
-    const entries = [
-      e("a", "문장1. 문장2. 문장3."),
-      e("b", "문장4. 문장5. 문장6. 문장7."),
-    ];
-    expect(generatePlaybook(entries).length).toBeLessThanOrEqual(5);
+  it("한국어 행동 지침 체크리스트 5개를 요구하는 지시를 포함한다", () => {
+    const entries = [e("a", "오늘 레슨에서 배운 것")];
+    const prompt = buildPrompt(entries);
+    expect(prompt).toMatch(/5/);
+    expect(prompt).toMatch(/한국어/);
+    expect(prompt).toMatch(/행동|실천|체크리스트/);
   });
 
-  it("중복 문장은 한 번만 포함된다", () => {
-    const entries = [
-      e("a", "백핸드 리듬을 늦추자."),
-      e("b", "백핸드 리듬을 늦추자."),
-    ];
-    const texts = generatePlaybook(entries).map((item) => item.text);
-    const unique = new Set(texts.map((t) => t.toLowerCase()));
-    expect(unique.size).toBe(texts.length);
-  });
-
-  it("전체 pool에서 뽑으므로 오래된 기록도 항목에 포함될 수 있다", () => {
-    const entries = [
-      e("old", "오래된 교훈."),
-      e("new", "최신 교훈."),
-    ];
-    const results = Array.from({ length: 20 }, () => generatePlaybook(entries));
-    const hasOld = results.some((r) => r.some((item) => item.text === "오래된 교훈"));
-    const hasNew = results.some((r) => r.some((item) => item.text === "최신 교훈"));
-    expect(hasOld).toBe(true);
-    expect(hasNew).toBe(true);
+  it("entry의 날짜와 유형 정보를 포함한다", () => {
+    const entries = [e("a", "노트 내용", "2026-04-28")];
+    const prompt = buildPrompt(entries);
+    expect(prompt).toContain("2026-04-28");
+    expect(prompt).toContain("레슨");
   });
 });
