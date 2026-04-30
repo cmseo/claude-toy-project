@@ -14,26 +14,13 @@ const entry = (overrides: Partial<DiaryEntry> = {}): DiaryEntry => ({
   ...overrides,
 });
 
-const mockPlaybookResponse = {
-  items: [
-    { id: "ai-1", text: "백핸드 준비 자세" },
-    { id: "ai-2", text: "서브 토스 높이" },
-    { id: "ai-3", text: "리턴 스플릿 스텝" },
-    { id: "ai-4", text: "포핸드 팔로스루" },
-    { id: "ai-5", text: "멘탈 유지" },
-  ],
-  updatedAt: "2026-04-30T12:00:00.000Z",
-};
-
 describe("useDiary", () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.stubGlobal("fetch", vi.fn());
   });
 
   afterEach(() => {
     localStorage.clear();
-    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
@@ -65,108 +52,33 @@ describe("useDiary", () => {
     expect(localStorage.getItem("tennis-playbook:playbook-stale:v1")).toBe("true");
   });
 
-  it("regeneratePlaybook fetches from API and updates playbook state", async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlaybookResponse,
-    });
-
+  it("regeneratePlaybook picks random items and clears stale flag", async () => {
     const { result } = renderHook(() => useDiary());
     await waitFor(() => expect(result.current.hydrated).toBe(true));
 
     act(() => {
-      result.current.addEntry(entry({ id: "a", notes: "테스트 노트" }));
+      result.current.addEntry(entry({ id: "a", notes: "포핸드 팔로스루.\n서브 토스 높이" }));
     });
 
     await act(async () => {
       await result.current.regeneratePlaybook();
     });
 
-    expect(result.current.playbook?.items).toHaveLength(5);
+    expect(result.current.playbook?.items.length).toBeGreaterThan(0);
+    expect(result.current.playbook?.items.length).toBeLessThanOrEqual(5);
     expect(result.current.isGenerating).toBe(false);
     expect(localStorage.getItem("tennis-playbook:playbook-stale:v1")).toBeNull();
   });
 
-  it("regeneratePlaybook sets isGenerating during fetch", async () => {
-    let resolvePromise: (value: unknown) => void;
-    const pending = new Promise((resolve) => {
-      resolvePromise = resolve;
-    });
-
-    (global.fetch as ReturnType<typeof vi.fn>).mockReturnValueOnce(pending);
-
+  it("regeneratePlaybook does nothing with empty entries", async () => {
     const { result } = renderHook(() => useDiary());
     await waitFor(() => expect(result.current.hydrated).toBe(true));
-
-    act(() => {
-      result.current.addEntry(entry({ id: "a", notes: "노트" }));
-    });
-
-    let regeneratePromise: Promise<void>;
-    act(() => {
-      regeneratePromise = result.current.regeneratePlaybook();
-    });
-
-    expect(result.current.isGenerating).toBe(true);
-
-    await act(async () => {
-      resolvePromise!({ ok: true, json: async () => mockPlaybookResponse });
-      await regeneratePromise!;
-    });
-
-    expect(result.current.isGenerating).toBe(false);
-  });
-
-  it("regeneratePlaybook sets generationError on failure and keeps existing playbook", async () => {
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: true,
-      json: async () => mockPlaybookResponse,
-    });
-
-    const { result } = renderHook(() => useDiary());
-    await waitFor(() => expect(result.current.hydrated).toBe(true));
-
-    act(() => {
-      result.current.addEntry(entry({ id: "a", notes: "초기 항목" }));
-    });
 
     await act(async () => {
       await result.current.regeneratePlaybook();
     });
 
-    const existingPlaybook = result.current.playbook;
-
-    (global.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      ok: false,
-      json: async () => ({ error: "서버 에러" }),
-    });
-
-    await act(async () => {
-      await result.current.regeneratePlaybook();
-    });
-
-    expect(result.current.generationError).toBe("서버 에러");
-    expect(result.current.playbook).toEqual(existingPlaybook);
-  });
-
-  it("regeneratePlaybook handles AbortError as timeout", async () => {
-    const abortError = new Error("The operation was aborted.");
-    abortError.name = "AbortError";
-    (global.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(abortError);
-
-    const { result } = renderHook(() => useDiary());
-    await waitFor(() => expect(result.current.hydrated).toBe(true));
-
-    act(() => {
-      result.current.addEntry(entry({ id: "a", notes: "노트" }));
-    });
-
-    await act(async () => {
-      await result.current.regeneratePlaybook();
-    });
-
-    expect(result.current.generationError).toContain("시간이 초과");
-    expect(result.current.isGenerating).toBe(false);
+    expect(result.current.playbook).toBeNull();
   });
 
   it("addEntry: storage 실패 시 entries와 stale 플래그가 변경되지 않는다", async () => {
