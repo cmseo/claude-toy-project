@@ -18,15 +18,16 @@ export function TennisBallButton() {
     <button
       onClick={handleClick}
       aria-label="시작하기"
-      className={`group relative cursor-pointer transition-all duration-700 ease-[cubic-bezier(0.28,0.84,0.42,1)] ${
+      className={`group relative transition-all duration-700 ease-[cubic-bezier(0.28,0.84,0.42,1)] ${
         isZooming
           ? "scale-[25] opacity-90"
-          : "animate-[ballBounce_2s_cubic-bezier(0.28,0.84,0.42,1)_infinite] hover:scale-110 active:scale-95"
+          : "animate-[ballBounce_2s_ease-in-out_infinite] hover:brightness-110 active:scale-95"
       }`}
+      style={{ cursor: "url('/racket-cursor.svg') 12 12, pointer" }}
     >
       <svg
-        width="140"
-        height="140"
+        width="70"
+        height="70"
         viewBox="0 0 140 140"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"

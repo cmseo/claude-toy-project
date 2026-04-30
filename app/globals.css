@@ -128,19 +128,10 @@
 /* Landing page animations */
 @keyframes ballBounce {
   0%, 100% {
-    transform: translateY(0) scale(1, 1);
-  }
-  30% {
-    transform: translateY(-24px) scale(0.95, 1.08);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(0) scale(1.08, 0.92);
-  }
-  65% {
-    transform: translateY(-10px) scale(0.98, 1.03);
-  }
-  80% {
-    transform: translateY(0) scale(1.02, 0.98);
+    transform: translateY(-18px);
   }
 }
 
@@ -149,21 +140,9 @@
     transform: translateX(-50%) scale(1);
     opacity: 0.2;
   }
-  30% {
-    transform: translateX(-50%) scale(0.6);
-    opacity: 0.1;
-  }
   50% {
-    transform: translateX(-50%) scale(1.2);
-    opacity: 0.3;
-  }
-  65% {
-    transform: translateX(-50%) scale(0.8);
-    opacity: 0.15;
-  }
-  80% {
-    transform: translateX(-50%) scale(1.05);
-    opacity: 0.22;
+    transform: translateX(-50%) scale(0.7);
+    opacity: 0.12;
   }
 }
 
