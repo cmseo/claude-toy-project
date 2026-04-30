@@ -135,6 +135,19 @@
   }
 }
 
+@keyframes ballHit {
+  0% {
+    transform: translateY(0) scale(1) rotate(0deg);
+  }
+  15% {
+    transform: translateY(4px) scale(0.9) rotate(-20deg);
+  }
+  100% {
+    transform: translateY(0) scale(30) rotate(720deg);
+    opacity: 0.9;
+  }
+}
+
 @keyframes shadowPulse {
   0%, 100% {
     transform: translateX(-50%) scale(1);

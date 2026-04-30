@@ -2,7 +2,10 @@ import { TennisBallButton } from "@/components/landing/TennisBallButton";
 
 export default function LandingPage() {
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden">
+    <main
+      className="relative flex min-h-screen flex-col items-center justify-center gap-10 overflow-hidden"
+      style={{ cursor: "url('/racket-cursor.svg') 20 12, pointer" }}
+    >
       {/* Full-screen clay court SVG background */}
       <svg
         className="pointer-events-none absolute inset-0 h-full w-full"

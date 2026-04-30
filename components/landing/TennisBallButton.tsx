@@ -11,19 +11,19 @@ export function TennisBallButton() {
     setIsZooming(true);
     setTimeout(() => {
       router.push("/playbook");
-    }, 800);
+    }, 750);
   };
 
   return (
     <button
       onClick={handleClick}
       aria-label="시작하기"
-      className={`group relative transition-all duration-700 ease-[cubic-bezier(0.28,0.84,0.42,1)] ${
+      className={`group relative transition-all ease-[cubic-bezier(0.28,0.84,0.42,1)] ${
         isZooming
-          ? "scale-[25] opacity-90"
-          : "animate-[ballBounce_2s_ease-in-out_infinite] hover:brightness-110 active:scale-95"
+          ? "animate-[ballHit_0.8s_cubic-bezier(0.16,1,0.3,1)_forwards]"
+          : "animate-[ballBounce_2s_ease-in-out_infinite] duration-300 hover:brightness-110 active:scale-90"
       }`}
-      style={{ cursor: "url('/racket-cursor.svg') 12 12, pointer" }}
+      style={{ cursor: "inherit" }}
     >
       <svg
         width="70"
