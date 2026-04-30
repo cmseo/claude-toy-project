@@ -1,12 +1,21 @@
 "use client";
 
-import { useMemo } from "react";
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { useMemo, useState } from "react";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyTitle,
+} from "@/components/ui/empty";
+import { DeleteDialog } from "@/components/diary/DeleteDialog";
 import { RecordCard } from "@/components/diary/RecordCard";
 import { useDiary } from "@/hooks/useDiary";
+import type { DiaryEntry } from "@/types/diary";
 
 export default function HistoryPage() {
-  const { entries, hydrated } = useDiary();
+  const { entries, hydrated, deleteEntry } = useDiary();
+  const [pendingDelete, setPendingDelete] = useState<DiaryEntry | null>(null);
 
   const sorted = useMemo(() => {
     return [...entries].sort((a, b) => {
@@ -14,6 +23,13 @@ export default function HistoryPage() {
       return a.createdAt < b.createdAt ? 1 : -1;
     });
   }, [entries]);
+
+  function handleConfirmDelete() {
+    if (pendingDelete) {
+      deleteEntry(pendingDelete.id);
+      setPendingDelete(null);
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4 p-4">
@@ -29,9 +45,14 @@ export default function HistoryPage() {
       )}
       <div className="flex flex-col gap-3">
         {sorted.map((entry) => (
-          <RecordCard key={entry.id} entry={entry} />
+          <RecordCard key={entry.id} entry={entry} onDelete={setPendingDelete} />
         ))}
       </div>
+      <DeleteDialog
+        open={pendingDelete !== null}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+        onConfirm={handleConfirmDelete}
+      />
     </div>
   );
 }
