@@ -53,24 +53,19 @@ export function TennisBallButton() {
             <stop offset="0%" stopColor="#4a6600" stopOpacity="0.4" />
             <stop offset="100%" stopColor="#4a6600" stopOpacity="0" />
           </radialGradient>
-          {/* Felt texture using noise-like pattern */}
-          <filter id="feltNoise" x="0%" y="0%" width="100%" height="100%">
-            <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="4" result="noise" />
-            <feColorMatrix type="saturate" values="0" in="noise" result="grayNoise" />
-            <feBlend in="SourceGraphic" in2="grayNoise" mode="soft-light" result="felt" />
-          </filter>
+          {/* Clip path to constrain felt texture within ball */}
+          <clipPath id="ballClip">
+            <circle cx="70" cy="70" r="62" />
+          </clipPath>
           {/* Outer glow for interactivity hint */}
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="blur" />
-            <feMerge>
-              <feMergeNode in="blur" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
         </defs>
 
-        {/* Ball body with felt texture */}
-        <circle cx="70" cy="70" r="62" fill="url(#ballBase)" filter="url(#feltNoise)" />
+        {/* Ball body */}
+        <g clipPath="url(#ballClip)">
+          <circle cx="70" cy="70" r="62" fill="url(#ballBase)" />
+          {/* Felt texture - subtle speckle pattern */}
+          <circle cx="70" cy="70" r="62" fill="#b8d416" opacity="0.15" />
+        </g>
         {/* 3D shading layer */}
         <circle cx="70" cy="70" r="62" fill="url(#ballShadow)" />
         {/* Top highlight */}
