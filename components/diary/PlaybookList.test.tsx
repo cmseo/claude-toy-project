@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import { PlaybookList } from "./PlaybookList";
 import type { Playbook } from "@/types/diary";
 
@@ -44,5 +45,35 @@ describe("PlaybookList", () => {
   it("isLoading이 true이면 기존 playbook 항목은 표시하지 않는다", () => {
     render(<PlaybookList playbook={playbook} hasEntries={true} isLoading={true} />);
     expect(screen.queryByText("백핸드 리듬을 늦추자")).not.toBeInTheDocument();
+  });
+
+  it("기록이 있고 로딩 중이 아니면 새로고침 버튼을 표시한다", () => {
+    render(<PlaybookList playbook={playbook} hasEntries={true} isLoading={false} />);
+    expect(screen.getByRole("button", { name: /새로고침/ })).toBeInTheDocument();
+  });
+
+  it("기록이 0개이면 새로고침 버튼을 표시하지 않는다", () => {
+    render(<PlaybookList playbook={null} hasEntries={false} isLoading={false} />);
+    expect(screen.queryByRole("button", { name: /새로고침/ })).not.toBeInTheDocument();
+  });
+
+  it("새로고침 버튼 클릭 시 onRefresh를 호출한다", async () => {
+    const user = userEvent.setup();
+    const onRefresh = vi.fn();
+    render(
+      <PlaybookList
+        playbook={playbook}
+        hasEntries={true}
+        isLoading={false}
+        onRefresh={onRefresh}
+      />
+    );
+    await user.click(screen.getByRole("button", { name: /새로고침/ }));
+    expect(onRefresh).toHaveBeenCalledTimes(1);
+  });
+
+  it("로딩 중이면 새로고침 버튼을 표시하지 않는다", () => {
+    render(<PlaybookList playbook={playbook} hasEntries={true} isLoading={true} />);
+    expect(screen.queryByRole("button", { name: /새로고침/ })).not.toBeInTheDocument();
   });
 });

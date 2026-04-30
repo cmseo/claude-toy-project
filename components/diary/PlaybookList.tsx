@@ -8,14 +8,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
-import { Loader2 } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 import type { Playbook } from "@/types/diary";
 
 interface PlaybookListProps {
   playbook: Playbook | null;
   hasEntries: boolean;
   isLoading: boolean;
+  onRefresh?: () => void;
 }
 
 function formatUpdatedAt(iso: string): string {
@@ -28,7 +30,7 @@ function formatUpdatedAt(iso: string): string {
   return `${yyyy}.${mm}.${dd} ${hh}:${mi}`;
 }
 
-export function PlaybookList({ playbook, hasEntries, isLoading }: PlaybookListProps) {
+export function PlaybookList({ playbook, hasEntries, isLoading, onRefresh }: PlaybookListProps) {
   if (isLoading) {
     return (
       <Card>
@@ -53,9 +55,14 @@ export function PlaybookList({ playbook, hasEntries, isLoading }: PlaybookListPr
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>경기 전 체크리스트</CardTitle>
-        <CardDescription>최근 느낀점에서 자동 선별된 항목</CardDescription>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle>경기 전 체크리스트</CardTitle>
+          <CardDescription>최근 느낀점에서 자동 선별된 항목</CardDescription>
+        </div>
+        <Button variant="ghost" size="icon" aria-label="새로고침" onClick={onRefresh}>
+          <RefreshCw className="h-4 w-4" />
+        </Button>
       </CardHeader>
       <CardContent>
         <ol className="flex flex-col gap-3">
