@@ -51,7 +51,7 @@ describe("useDiary", () => {
     expect(result.current.entries.map((e) => e.id)).toEqual(["b"]);
   });
 
-  it("does not update playbook when storage write throws", async () => {
+  it("addEntry: storage 실패 시 playbook이 이전 상태 그대로 유지된다", async () => {
     const { result } = renderHook(() => useDiary());
     await waitFor(() => expect(result.current.hydrated).toBe(true));
 
@@ -72,6 +72,56 @@ describe("useDiary", () => {
     ).toThrow("storage failure");
 
     expect(result.current.playbook).toEqual(initialPlaybook);
+    spy.mockRestore();
+  });
+
+  it("updateEntry: storage 실패 시 playbook과 entries가 이전 상태 그대로 유지된다", async () => {
+    const { result } = renderHook(() => useDiary());
+    await waitFor(() => expect(result.current.hydrated).toBe(true));
+
+    act(() => {
+      result.current.addEntry(entry({ id: "a", notes: "원본 노트" }));
+    });
+    const before = result.current.playbook;
+    const beforeEntries = result.current.entries;
+
+    const spy = vi.spyOn(storage, "updateEntry").mockImplementation(() => {
+      throw new Error("storage failure");
+    });
+
+    expect(() =>
+      act(() => {
+        result.current.updateEntry("a", { notes: "수정 시도" });
+      })
+    ).toThrow("storage failure");
+
+    expect(result.current.playbook).toEqual(before);
+    expect(result.current.entries).toEqual(beforeEntries);
+    spy.mockRestore();
+  });
+
+  it("deleteEntry: storage 실패 시 playbook과 entries가 이전 상태 그대로 유지된다", async () => {
+    const { result } = renderHook(() => useDiary());
+    await waitFor(() => expect(result.current.hydrated).toBe(true));
+
+    act(() => {
+      result.current.addEntry(entry({ id: "a", notes: "지키고 싶은 노트" }));
+    });
+    const before = result.current.playbook;
+    const beforeEntries = result.current.entries;
+
+    const spy = vi.spyOn(storage, "deleteEntry").mockImplementation(() => {
+      throw new Error("storage failure");
+    });
+
+    expect(() =>
+      act(() => {
+        result.current.deleteEntry("a");
+      })
+    ).toThrow("storage failure");
+
+    expect(result.current.playbook).toEqual(before);
+    expect(result.current.entries).toEqual(beforeEntries);
     spy.mockRestore();
   });
 });

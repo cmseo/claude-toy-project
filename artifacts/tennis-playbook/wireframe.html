@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wireframe: Tennis Playbook</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  :root {
+    --w-bg: #f5f5f5;
+    --w-border: #ccc;
+    --w-text: #555;
+    --w-muted: #aaa;
+    --w-fill: #eee;
+    --w-surface: #fff;
+  }
+
+  /* ── Dark mode ── */
+  body.dark {
+    --w-bg: #111;
+    --w-border: #333;
+    --w-text: #e0e0e0;
+    --w-muted: #666;
+    --w-fill: #222;
+    --w-surface: #1a1a1a;
+  }
+  body.dark .phone-shell    { background: var(--w-surface); }
+  body.dark .tab-bar        { background: var(--w-surface); border-color: var(--w-border); }
+  body.dark .w-card         { background: var(--w-fill); border-color: var(--w-border); }
+  body.dark .w-input        { background: var(--w-fill); border-color: var(--w-border); color: var(--w-text); }
+  body.dark .w-tag          { background: var(--w-fill); border-color: var(--w-border); }
+  body.dark .w-tag.on       { background: var(--w-text); color: var(--w-surface); border-color: var(--w-text); }
+  body.dark .w-btn          { background: var(--w-text); color: var(--w-surface); }
+  body.dark .w-btn-outline  { border-color: var(--w-border); color: var(--w-muted); }
+  body.dark .fab-btn        { background: var(--w-text); border-color: var(--w-surface) !important; }
+  body.dark .fab-btn i      { color: var(--w-surface) !important; }
+  body.dark .playbook-num   { border-color: var(--w-border); color: var(--w-muted); }
+  body.dark .app-bar        { background: var(--w-surface); border-color: var(--w-border); }
+
+  * { font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace; color: var(--w-text); }
+  body { background: var(--w-bg); }
+
+  nav { position: sticky; top: 0; z-index: 40; background: var(--w-bg); border-bottom: 1px solid var(--w-border); }
+  nav button { cursor: pointer; font-size: 13px; }
+  nav button:hover { background: var(--w-fill); border-radius: 4px; }
+  nav button.active { font-weight: bold; border-bottom: 2px solid var(--w-text); }
+
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  .vp-toggle button { font-size: 12px; padding: 2px 8px; border: 1px solid var(--w-border); cursor: pointer; background: var(--w-surface); }
+  .vp-toggle button:first-child { border-radius: 4px 0 0 4px; }
+  .vp-toggle button:last-child  { border-radius: 0 4px 4px 0; border-left: none; }
+  .vp-toggle button.active { background: var(--w-text); color: var(--w-surface); }
+
+  body.viewport-mobile .screen-content {
+    max-width: 375px !important;
+    margin: 24px auto !important;
+    border: 2px solid var(--w-border);
+    border-radius: 24px;
+    min-height: 667px;
+    background: var(--w-surface);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+    padding: 0 !important;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .screen-notes {
+    background: #fffde7; border-left: 3px solid #ffd54f;
+    padding: 12px 16px; margin-top: 16px; font-size: 13px;
+    border-radius: 0 4px 4px 0; max-width: 430px;
+    margin-left: auto; margin-right: auto;
+  }
+  body.viewport-mobile .screen-notes { max-width: 375px; }
+  body.dark .screen-notes { background: #2a2500; border-color: #b8860b; }
+  .screen-notes summary { cursor: pointer; font-weight: bold; font-size: 12px; color: #b0a050; text-transform: uppercase; letter-spacing: 0.05em; }
+  .screen-notes p { margin: 6px 0 2px; color: #777; }
+  .screen-notes ul { margin: 4px 0 0 16px; padding: 0; color: #777; }
+  .screen-notes li { margin: 2px 0; }
+
+  /* ── App shell ── */
+  .phone-shell { display: flex; flex-direction: column; min-height: 667px; position: relative; background: var(--w-surface); }
+  .phone-content { flex: 1; overflow-y: auto; padding-bottom: 76px; }
+  .app-bar { padding: 20px 16px 12px; border-bottom: 1px solid var(--w-border); background: var(--w-surface); }
+
+  /* ── Tab bar with FAB ── */
+  .tab-bar {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; align-items: flex-end;
+    border-top: 1px solid var(--w-border);
+    background: var(--w-surface);
+    height: 64px;
+  }
+  .tab-bar .tab-btn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 3px; font-size: 11px; border: none; background: transparent; cursor: pointer;
+    color: var(--w-muted); height: 64px;
+  }
+  .tab-bar .tab-btn.tab-active { color: var(--w-text); font-weight: bold; border-top: 2px solid var(--w-text); margin-top: -1px; }
+
+  /* FAB slot in center of tab bar */
+  .tab-fab-slot { width: 72px; flex-shrink: 0; position: relative; height: 64px; }
+  .fab-btn {
+    position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--w-text); border: 3px solid var(--w-surface) !important;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.22);
+  }
+
+  /* FAB bubble guide */
+  .fab-bubble {
+    position: absolute;
+    bottom: 76px; left: 50%; transform: translateX(-50%);
+    background: var(--w-text); color: var(--w-surface);
+    padding: 10px 14px; border-radius: 12px;
+    font-size: 12px; text-align: center; white-space: nowrap;
+    z-index: 20; pointer-events: none;
+    animation: bubble-pop 0.3s ease;
+  }
+  .fab-bubble::after {
+    content: ''; position: absolute; bottom: -7px; left: 50%; transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 7px solid transparent; border-right: 7px solid transparent;
+    border-top: 7px solid var(--w-text);
+  }
+  @keyframes bubble-pop { from { opacity: 0; transform: translateX(-50%) scale(0.9); } to { opacity: 1; transform: translateX(-50%) scale(1); } }
+
+  /* ── Reusable components ── */
+  .w-input { width: 100%; border: 1px solid var(--w-border); border-radius: 6px; padding: 9px 12px; font-size: 14px; background: var(--w-fill); box-sizing: border-box; }
+  .w-card  { border: 1px solid var(--w-border); border-radius: 8px; padding: 12px; background: var(--w-surface); }
+  .w-tag   { display: inline-flex; align-items: center; border: 1px solid var(--w-border); border-radius: 4px; padding: 3px 10px; font-size: 12px; background: var(--w-fill); cursor: pointer; }
+  .w-tag.on { background: var(--w-text); color: var(--w-surface); border-color: var(--w-text); }
+  .w-btn   { width: 100%; padding: 12px; background: var(--w-text); color: var(--w-surface); border: none; border-radius: 8px; font-size: 14px; cursor: pointer; font-weight: bold; }
+  .w-btn-outline { width: 100%; padding: 10px; background: none; border: 1px solid var(--w-border); border-radius: 8px; font-size: 14px; cursor: pointer; color: var(--w-muted); }
+  .w-label   { font-size: 12px; color: var(--w-muted); margin-bottom: 4px; display: block; }
+  .w-section { font-size: 11px; color: var(--w-muted); font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 8px; }
+
+  .playbook-item { display: flex; align-items: flex-start; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--w-fill); }
+  .playbook-item:last-child { border-bottom: none; }
+  .playbook-num  { min-width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--w-border); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: bold; flex-shrink: 0; color: var(--w-muted); }
+</style>
+</head>
+<body class="p-0 m-0 viewport-mobile">
+
+<nav class="flex items-center gap-2 px-4 py-2 overflow-x-auto">
+  <span class="text-xs shrink-0" style="color:var(--w-muted)">wireframe</span>
+  <button id="nav-0" onclick="show(0)" class="px-2 py-1 shrink-0">랜딩</button>
+  <button id="nav-1" onclick="show(1)" class="px-2 py-1 shrink-0">플레이북</button>
+  <button id="nav-2" onclick="show(2)" class="px-2 py-1 shrink-0">플레이북 (빈+버블)</button>
+  <button id="nav-3" onclick="show(3)" class="px-2 py-1 shrink-0">히스토리</button>
+  <button id="nav-4" onclick="show(4)" class="px-2 py-1 shrink-0">기록 추가 (레슨)</button>
+  <button id="nav-5" onclick="show(5)" class="px-2 py-1 shrink-0">기록 추가 (경기)</button>
+  <button id="nav-6" onclick="show(6)" class="px-2 py-1 shrink-0">기록 편집</button>
+  <button id="nav-7" onclick="show(7)" class="px-2 py-1 shrink-0">삭제 확인</button>
+  <button id="nav-8" onclick="show(8)" class="px-2 py-1 shrink-0">히스토리 (전체)</button>
+  <div class="flex items-center gap-2 ml-auto shrink-0">
+    <button id="dark-toggle" onclick="toggleDark()" class="px-2 py-1 flex items-center gap-1" style="border:1px solid var(--w-border);border-radius:4px;background:var(--w-surface);font-size:12px;">
+      <i data-lucide="moon" style="width:13px;height:13px;"></i> Dark
+    </button>
+    <div class="vp-toggle flex">
+      <button id="vp-desktop" onclick="setViewport('desktop')">Desktop</button>
+      <button id="vp-mobile"  onclick="setViewport('mobile')" class="active">Mobile</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ════════════════════════════════
+     screen-0: 랜딩
+     ════════════════════════════════ -->
+<div id="screen-0" class="screen">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="phone-content px-6 flex flex-col justify-between" style="min-height:667px;padding-bottom:0;">
+        <div class="pt-16">
+          <div class="text-xs font-bold mb-3" style="color:var(--w-muted);letter-spacing:.12em;text-transform:uppercase;">Tennis Playbook</div>
+          <div class="text-2xl font-bold leading-snug mb-4">경기 전 30초,<br>오늘의 체크리스트</div>
+          <div class="text-sm leading-relaxed" style="color:var(--w-muted);">레슨과 경기 후 느낀점을 기록하면<br>핵심 포인트를 자동으로 모아드립니다.</div>
+        </div>
+        <div class="py-8 flex flex-col gap-4">
+          <div class="flex items-start gap-3">
+            <div style="width:32px;height:32px;background:var(--w-fill);border-radius:8px;border:1px solid var(--w-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i data-lucide="pencil-line" style="width:16px;height:16px;"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">레슨·경기 기록</div>
+              <div class="text-xs mt-0.5" style="color:var(--w-muted);">날짜, 소요 시간, 느낀점을 간단하게</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div style="width:32px;height:32px;background:var(--w-fill);border-radius:8px;border:1px solid var(--w-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i data-lucide="star" style="width:16px;height:16px;"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">자동 플레이북</div>
+              <div class="text-xs mt-0.5" style="color:var(--w-muted);">기록이 쌓이면 경기 전 체크리스트 자동 갱신</div>
+            </div>
+          </div>
+          <div class="flex items-start gap-3">
+            <div style="width:32px;height:32px;background:var(--w-fill);border-radius:8px;border:1px solid var(--w-border);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              <i data-lucide="clock" style="width:16px;height:16px;"></i>
+            </div>
+            <div>
+              <div class="text-sm font-bold">시간 추적</div>
+              <div class="text-xs mt-0.5" style="color:var(--w-muted);">주·월·년 단위로 테니스에 쓴 시간 확인</div>
+            </div>
+          </div>
+        </div>
+        <div class="pb-12">
+          <button class="w-btn flex items-center justify-center gap-2">
+            시작하기 <i data-lucide="arrow-right" style="width:16px;height:16px;color:var(--w-surface);"></i>
+          </button>
+          <div class="text-xs text-center mt-3" style="color:var(--w-muted);">로그인 없이 바로 사용 · 기기에 저장</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 앱 최초 진입</li>
+        <li>인터랙션: "시작하기" → 플레이북 메인으로 이동</li>
+        <li>전환: 시작하기 → screen-1 or screen-2 (기록 유무에 따라)</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-1: 플레이북 (항목 있음)
+     ════════════════════════════════ -->
+<div id="screen-1" class="screen" data-scenario="scenario-3">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="app-bar">
+        <div class="text-xs" style="color:var(--w-muted)">Tennis Playbook</div>
+        <div class="text-sm font-bold mt-1">경기 전 체크리스트</div>
+      </div>
+      <div class="phone-content px-4 pt-4">
+        <div class="w-card">
+          <div class="playbook-item"><div class="playbook-num">1</div><span class="text-sm">임팩트 후 팔꿈치를 앞으로</span></div>
+          <div class="playbook-item"><div class="playbook-num">2</div><span class="text-sm">서브 토스 높이 일정하게</span></div>
+          <div class="playbook-item"><div class="playbook-num">3</div><span class="text-sm">백핸드 팔로스루 끝까지</span></div>
+          <div class="playbook-item"><div class="playbook-num">4</div><span class="text-sm">네트 가까이 다가갈 때 스트레이트 노림</span></div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn tab-active"><i data-lucide="star" style="width:18px;height:18px;"></i><span>플레이북</span></button>
+        <div class="tab-fab-slot">
+          <button class="fab-btn"><i data-lucide="plus" style="width:22px;height:22px;color:var(--w-surface);"></i></button>
+        </div>
+        <button class="tab-btn"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i><span>히스토리</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 앱 메인 진입 (기록 1개 이상)</li>
+        <li>인터랙션: FAB(+) 탭 → 기록 추가 화면</li>
+        <li>전환: FAB → screen-4 / 히스토리 탭 → screen-3</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-2: 플레이북 (빈 상태 + FAB 버블)
+     ════════════════════════════════ -->
+<div id="screen-2" class="screen" data-scenario="scenario-4">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="app-bar">
+        <div class="text-xs" style="color:var(--w-muted)">Tennis Playbook</div>
+        <div class="text-sm font-bold mt-1">경기 전 체크리스트</div>
+      </div>
+      <div class="phone-content px-4 flex flex-col items-center justify-center text-center" style="min-height:500px;">
+        <i data-lucide="circle-dashed" style="width:48px;height:48px;color:var(--w-muted);margin-bottom:16px;"></i>
+        <div class="text-sm font-bold mb-1">아직 기록이 없어요.</div>
+        <div class="text-xs" style="color:var(--w-muted)">아래 버튼으로 첫 기록을 남겨보세요.</div>
+      </div>
+      <div class="tab-bar" style="overflow:visible;">
+        <button class="tab-btn tab-active"><i data-lucide="star" style="width:18px;height:18px;"></i><span>플레이북</span></button>
+        <div class="tab-fab-slot" style="overflow:visible;">
+          <!-- 버블 가이드 -->
+          <div class="fab-bubble">
+            첫 기록을 남겨보세요!
+          </div>
+          <button class="fab-btn"><i data-lucide="plus" style="width:22px;height:22px;color:var(--w-surface);"></i></button>
+        </div>
+        <button class="tab-btn"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i><span>히스토리</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 저장된 기록 0개 (첫 진입 또는 전체 삭제 후)</li>
+        <li>인터랙션: FAB 버블은 첫 진입 시 자동 표시, 탭 없이 사라짐</li>
+        <li>전환: FAB(+) → screen-4 (기록 추가)</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-3: 히스토리
+     ════════════════════════════════ -->
+<div id="screen-3" class="screen" data-scenario="scenario-7">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="app-bar">
+        <div class="text-xs" style="color:var(--w-muted)">Tennis Playbook</div>
+        <div class="text-sm font-bold mt-1">히스토리</div>
+      </div>
+      <div class="phone-content px-4 pt-4">
+        <div class="w-card mb-4">
+          <div class="flex gap-2 mb-3">
+            <button class="w-tag">주</button>
+            <button class="w-tag on">월</button>
+            <button class="w-tag">년</button>
+            <button class="w-tag">전체</button>
+          </div>
+          <div class="w-label" style="margin:0 0 2px;">이번 달 총 시간</div>
+          <div class="text-2xl font-bold">2시간 30분</div>
+        </div>
+        <div class="w-section">기록</div>
+        <div class="w-card mb-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-tag">경기</span>
+            <span class="text-xs" style="color:var(--w-muted)">2026-04-30 · 1시간 30분</span>
+            <span class="w-tag on ml-auto" style="font-size:11px;">승</span>
+          </div>
+          <div class="text-xs mb-1" style="color:var(--w-muted)">스코어: 6-4 7-5</div>
+          <div class="text-sm mb-3">임팩트 후 팔꿈치를 앞으로, 서브 감각이 좋았다</div>
+          <div class="flex gap-2 justify-end">
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;"><i data-lucide="pencil" style="width:12px;height:12px;"></i> 편집</button>
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;color:var(--w-muted);"><i data-lucide="trash-2" style="width:12px;height:12px;"></i> 삭제</button>
+          </div>
+        </div>
+        <div class="w-card mb-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-tag">레슨</span>
+            <span class="text-xs" style="color:var(--w-muted)">2026-04-28 · 1시간</span>
+          </div>
+          <div class="text-sm mb-3">백핸드 팔로스루 교정, 임팩트 포인트 수정</div>
+          <div class="flex gap-2 justify-end">
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;"><i data-lucide="pencil" style="width:12px;height:12px;"></i> 편집</button>
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;color:var(--w-muted);"><i data-lucide="trash-2" style="width:12px;height:12px;"></i> 삭제</button>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn"><i data-lucide="star" style="width:18px;height:18px;"></i><span>플레이북</span></button>
+        <div class="tab-fab-slot"><button class="fab-btn"><i data-lucide="plus" style="width:22px;height:22px;color:var(--w-surface);"></i></button></div>
+        <button class="tab-btn tab-active"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i><span>히스토리</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 하단 탭 "히스토리" 클릭</li>
+        <li>인터랙션: 주/월/년/전체 탭 → 합계 갱신 (시간/분 표시) / 편집·삭제</li>
+        <li>전체 탭: "YY년 MM월 DD일부터 X시간 Y분" 형식으로 첫 기록 날짜와 누적 합계 표시 → screen-8 참고</li>
+        <li>전환: 편집 → screen-6 / 삭제 → screen-7 / FAB → screen-4</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-4: 기록 추가 (레슨)
+     ════════════════════════════════ -->
+<div id="screen-4" class="screen" data-scenario="scenario-1">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="app-bar">
+        <div class="text-xs" style="color:var(--w-muted)">Tennis Playbook</div>
+        <div class="text-sm font-bold mt-1">기록 추가</div>
+      </div>
+      <div class="phone-content px-4 pt-4">
+        <div class="mb-4">
+          <span class="w-label">유형</span>
+          <div class="flex gap-2"><button class="w-tag on">레슨</button><button class="w-tag">경기</button></div>
+        </div>
+        <div class="mb-4">
+          <span class="w-label">날짜 *</span>
+          <div class="w-input flex items-center justify-between"><span class="text-sm">2026-04-30</span><i data-lucide="calendar" style="width:14px;height:14px;color:var(--w-muted);"></i></div>
+        </div>
+        <div class="mb-4">
+          <span class="w-label">소요 시간 * (분)</span>
+          <div class="flex items-center gap-2"><input class="w-input text-sm" style="max-width:100px;" value="60" /><span class="text-sm" style="color:var(--w-muted);">분</span></div>
+        </div>
+        <div class="mb-6">
+          <span class="w-label">느낀점</span>
+          <div class="w-input text-sm" style="min-height:80px;display:flex;align-items:flex-start;padding-top:10px;"><span style="color:var(--w-muted);">오늘 배운 것, 느낀 것을 자유롭게...</span></div>
+        </div>
+        <button class="w-btn">저장</button>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn"><i data-lucide="star" style="width:18px;height:18px;"></i><span>플레이북</span></button>
+        <div class="tab-fab-slot"><button class="fab-btn tab-active" style="border-color:var(--w-surface) !important;"><i data-lucide="plus" style="width:22px;height:22px;color:var(--w-surface);"></i></button></div>
+        <button class="tab-btn"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i><span>히스토리</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: FAB(+) 탭</li>
+        <li>인터랙션: "경기" 선택 → 스코어·결과 필드 추가 / * 빈 채 저장 → 오류 메시지</li>
+        <li>전환: 저장 성공 → 플레이북으로 이동 (플레이북 갱신)</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-5: 기록 추가 (경기)
+     ════════════════════════════════ -->
+<div id="screen-5" class="screen" data-scenario="scenario-2">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="app-bar">
+        <div class="text-xs" style="color:var(--w-muted)">Tennis Playbook</div>
+        <div class="text-sm font-bold mt-1">기록 추가</div>
+      </div>
+      <div class="phone-content px-4 pt-4">
+        <div class="mb-4">
+          <span class="w-label">유형</span>
+          <div class="flex gap-2"><button class="w-tag">레슨</button><button class="w-tag on">경기</button></div>
+        </div>
+        <div class="mb-4">
+          <span class="w-label">날짜 *</span>
+          <div class="w-input flex items-center justify-between"><span class="text-sm">2026-04-30</span><i data-lucide="calendar" style="width:14px;height:14px;color:var(--w-muted);"></i></div>
+        </div>
+        <div class="mb-4">
+          <span class="w-label">소요 시간 * (분)</span>
+          <div class="flex items-center gap-2"><input class="w-input text-sm" style="max-width:100px;" value="90" /><span class="text-sm" style="color:var(--w-muted);">분</span></div>
+        </div>
+        <div class="mb-4">
+          <span class="w-label">스코어</span>
+          <input class="w-input text-sm" value="6-4 7-5" />
+        </div>
+        <div class="mb-4">
+          <span class="w-label">결과</span>
+          <div class="flex gap-2"><button class="w-tag on">승</button><button class="w-tag">패</button></div>
+        </div>
+        <div class="mb-6">
+          <span class="w-label">느낀점</span>
+          <div class="w-input text-sm" style="min-height:60px;display:flex;align-items:flex-start;padding-top:10px;"><span style="color:var(--w-muted);">오늘 배운 것, 느낀 것을 자유롭게...</span></div>
+        </div>
+        <button class="w-btn">저장</button>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn"><i data-lucide="star" style="width:18px;height:18px;"></i><span>플레이북</span></button>
+        <div class="tab-fab-slot"><button class="fab-btn"><i data-lucide="plus" style="width:22px;height:22px;color:var(--w-surface);"></i></button></div>
+        <button class="tab-btn"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i><span>히스토리</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 기록 추가에서 "경기" 유형 선택</li>
+        <li>인터랙션: "레슨" 선택 → 스코어·결과 필드 사라짐</li>
+        <li>전환: 저장 성공 → 플레이북으로 이동</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-6: 기록 편집
+     ════════════════════════════════ -->
+<div id="screen-6" class="screen" data-scenario="scenario-5">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="app-bar flex items-center gap-2">
+        <button style="background:none;border:none;cursor:pointer;padding:0;display:flex;"><i data-lucide="arrow-left" style="width:18px;height:18px;"></i></button>
+        <div class="text-sm font-bold">기록 편집</div>
+      </div>
+      <div class="phone-content px-4 pt-4">
+        <div class="mb-4">
+          <span class="w-label">유형</span>
+          <div class="flex gap-2"><button class="w-tag on">레슨</button><button class="w-tag">경기</button></div>
+        </div>
+        <div class="mb-4">
+          <span class="w-label">날짜 *</span>
+          <div class="w-input flex items-center justify-between"><span class="text-sm">2026-04-28</span><i data-lucide="calendar" style="width:14px;height:14px;color:var(--w-muted);"></i></div>
+        </div>
+        <div class="mb-4">
+          <span class="w-label">소요 시간 * (분)</span>
+          <div class="flex items-center gap-2"><input class="w-input text-sm" style="max-width:100px;" value="60" /><span class="text-sm" style="color:var(--w-muted);">분</span></div>
+        </div>
+        <div class="mb-6">
+          <span class="w-label">느낀점</span>
+          <div class="w-input text-sm" style="min-height:80px;padding-top:10px;">백핸드 팔로스루 교정, 임팩트 포인트 수정</div>
+        </div>
+        <button class="w-btn mb-3">저장</button>
+        <button class="w-btn-outline">취소</button>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn"><i data-lucide="star" style="width:18px;height:18px;"></i><span>플레이북</span></button>
+        <div class="tab-fab-slot"><button class="fab-btn"><i data-lucide="plus" style="width:22px;height:22px;color:var(--w-surface);"></i></button></div>
+        <button class="tab-btn tab-active"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i><span>히스토리</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 히스토리 카드 "편집" 버튼</li>
+        <li>인터랙션: 기존 데이터 채워진 채 진입</li>
+        <li>전환: 저장 → 히스토리 복귀 + 플레이북 갱신 / 취소 → 히스토리</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-7: 삭제 확인
+     ════════════════════════════════ -->
+<div id="screen-7" class="screen" data-scenario="scenario-6">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell" style="position:relative;">
+      <div style="opacity:0.3;pointer-events:none;">
+        <div class="app-bar"><div class="text-xs" style="color:var(--w-muted)">Tennis Playbook</div><div class="text-sm font-bold mt-1">히스토리</div></div>
+        <div class="px-4 pt-4">
+          <div class="w-card mb-3">
+            <div class="flex items-center gap-2 mb-2"><span class="w-tag">경기</span><span class="text-xs" style="color:var(--w-muted)">2026-04-30 · 1시간 30분</span><span class="w-tag on ml-auto" style="font-size:11px;">승</span></div>
+            <div class="text-sm mb-3">임팩트 후 팔꿈치를 앞으로...</div>
+            <div class="flex gap-2 justify-end"><button class="px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;">편집</button><button class="px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;">삭제</button></div>
+          </div>
+        </div>
+      </div>
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);border-radius:22px;"></div>
+      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:82%;background:var(--w-surface);border-radius:12px;padding:24px;box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+        <div class="text-sm font-bold mb-1 text-center">기록을 삭제하시겠습니까?</div>
+        <div class="text-xs text-center mb-5" style="color:var(--w-muted);">삭제된 기록은 복구할 수 없습니다.</div>
+        <div class="flex gap-2">
+          <button style="flex:1;padding:10px;background:var(--w-fill);border:1px solid var(--w-border);border-radius:8px;font-size:13px;cursor:pointer;">취소</button>
+          <button style="flex:1;padding:10px;background:var(--w-text);color:var(--w-surface);border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:bold;">삭제</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 히스토리 카드 "삭제" 버튼</li>
+        <li>인터랙션: 취소 → 다이얼로그 닫힘 / 삭제 → 기록 삭제 + 플레이북 갱신</li>
+        <li>전환: 삭제 완료 → 히스토리 (카드 제거) / 전체 삭제 → 플레이북 빈 상태</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<!-- ════════════════════════════════
+     screen-8: 히스토리 (전체 탭 선택)
+     ════════════════════════════════ -->
+<div id="screen-8" class="screen" data-scenario="scenario-7">
+  <div class="screen-content @container max-w-6xl mx-auto">
+    <div class="phone-shell">
+      <div class="app-bar">
+        <div class="text-xs" style="color:var(--w-muted)">Tennis Playbook</div>
+        <div class="text-sm font-bold mt-1">히스토리</div>
+      </div>
+      <div class="phone-content px-4 pt-4">
+        <div class="w-card mb-4">
+          <div class="flex gap-2 mb-3">
+            <button class="w-tag">주</button>
+            <button class="w-tag">월</button>
+            <button class="w-tag">년</button>
+            <button class="w-tag on">전체</button>
+          </div>
+          <div class="w-label" style="margin:0 0 2px;">26년 4월 28일부터</div>
+          <div class="text-2xl font-bold">3시간 30분</div>
+        </div>
+        <div class="w-section">기록</div>
+        <div class="w-card mb-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-tag">경기</span>
+            <span class="text-xs" style="color:var(--w-muted)">2026-04-30 · 1시간 30분</span>
+            <span class="w-tag on ml-auto" style="font-size:11px;">승</span>
+          </div>
+          <div class="text-xs mb-1" style="color:var(--w-muted)">스코어: 6-4 7-5</div>
+          <div class="text-sm mb-3">임팩트 후 팔꿈치를 앞으로, 서브 감각이 좋았다</div>
+          <div class="flex gap-2 justify-end">
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;"><i data-lucide="pencil" style="width:12px;height:12px;"></i> 편집</button>
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;color:var(--w-muted);"><i data-lucide="trash-2" style="width:12px;height:12px;"></i> 삭제</button>
+          </div>
+        </div>
+        <div class="w-card mb-3">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-tag">레슨</span>
+            <span class="text-xs" style="color:var(--w-muted)">2026-04-28 · 1시간</span>
+          </div>
+          <div class="text-sm mb-3">백핸드 팔로스루 교정, 임팩트 포인트 수정</div>
+          <div class="flex gap-2 justify-end">
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;"><i data-lucide="pencil" style="width:12px;height:12px;"></i> 편집</button>
+            <button class="flex items-center gap-1 px-3 py-1 text-xs" style="border:1px solid var(--w-border);border-radius:4px;color:var(--w-muted);"><i data-lucide="trash-2" style="width:12px;height:12px;"></i> 삭제</button>
+          </div>
+        </div>
+      </div>
+      <div class="tab-bar">
+        <button class="tab-btn"><i data-lucide="star" style="width:18px;height:18px;"></i><span>플레이북</span></button>
+        <div class="tab-fab-slot"><button class="fab-btn"><i data-lucide="plus" style="width:22px;height:22px;color:var(--w-surface);"></i></button></div>
+        <button class="tab-btn tab-active"><i data-lucide="clipboard-list" style="width:18px;height:18px;"></i><span>히스토리</span></button>
+      </div>
+    </div>
+  </div>
+  <div class="screen-notes">
+    <details open><summary>Notes</summary>
+      <ul>
+        <li>트리거: 히스토리 탭에서 "전체" 탭 선택</li>
+        <li>표시 형식: "YY년 MM월 DD일부터" + 누적 소요 시간 (첫 기록 날짜 기준)</li>
+        <li>기록이 없으면 "0분" 표시</li>
+      </ul>
+    </details>
+  </div>
+</div>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  document.getElementById('screen-' + id).classList.add('active');
+  document.querySelectorAll('nav button[id^="nav-"]').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('nav-' + id).classList.add('active');
+}
+function setViewport(mode) {
+  document.body.classList.remove('viewport-mobile', 'viewport-desktop');
+  document.body.classList.add('viewport-' + mode);
+  document.querySelectorAll('.vp-toggle button').forEach(function(b) { b.classList.remove('active'); });
+  document.getElementById('vp-' + mode).classList.add('active');
+}
+function toggleDark() {
+  var isDark = document.body.classList.toggle('dark');
+  var btn = document.getElementById('dark-toggle');
+  btn.innerHTML = isDark
+    ? '<i data-lucide="sun" style="width:13px;height:13px;"></i> Light'
+    : '<i data-lucide="moon" style="width:13px;height:13px;"></i> Dark';
+  lucide.createIcons();
+}
+document.addEventListener('DOMContentLoaded', function() {
+  var first = document.querySelector('nav button[id^="nav-"]');
+  if (first) first.click();
+  lucide.createIcons();
+});
+</script>
+</body>
+</html>
