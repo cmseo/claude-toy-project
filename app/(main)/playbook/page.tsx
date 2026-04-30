@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { toast } from "sonner";
 import { FabBubble } from "@/components/diary/FabBubble";
 import { PlaybookList } from "@/components/diary/PlaybookList";
 import { useDiary } from "@/hooks/useDiary";
@@ -12,7 +11,6 @@ export default function PlaybookPage() {
     playbook,
     hydrated,
     isGenerating,
-    generationError,
     isStale,
     regeneratePlaybook,
   } = useDiary();
@@ -27,12 +25,6 @@ export default function PlaybookPage() {
       });
     }
   }, [hydrated, isStale, entries.length, regeneratePlaybook]);
-
-  useEffect(() => {
-    if (generationError) {
-      toast.error("플레이북 생성에 실패했습니다", { id: "playbook-error" });
-    }
-  }, [generationError]);
 
   return (
     <div className="flex flex-col gap-4 p-4">
