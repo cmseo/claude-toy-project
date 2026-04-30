@@ -9,11 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty";
+import { Loader2 } from "lucide-react";
 import type { Playbook } from "@/types/diary";
 
 interface PlaybookListProps {
   playbook: Playbook | null;
   hasEntries: boolean;
+  isLoading: boolean;
 }
 
 function formatUpdatedAt(iso: string): string {
@@ -26,7 +28,18 @@ function formatUpdatedAt(iso: string): string {
   return `${yyyy}.${mm}.${dd} ${hh}:${mi}`;
 }
 
-export function PlaybookList({ playbook, hasEntries }: PlaybookListProps) {
+export function PlaybookList({ playbook, hasEntries, isLoading }: PlaybookListProps) {
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center gap-3 py-12">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">플레이북 생성 중...</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!hasEntries || !playbook || playbook.items.length === 0) {
     return (
       <Empty>
